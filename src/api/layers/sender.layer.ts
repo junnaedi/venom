@@ -77,25 +77,33 @@ export class SenderLayer extends ListenerLayer {
   /**
    * Send List menu
    * @param to the numberid xxx@c.us
-   * @param title the titulo
-   * @param subtitle the subtitle
-   * @param description the description
    * @param buttonText the name button
+   * @param description the description
+   * @param subtitle the subtitle
    * @param menu List menu
+   * @param title the titulo
    */
   public async sendListMenu(
     to: string,
-    title: string,
-    description: string,
     buttonText: string,
-    menu: Array<any>
+    description: string,
+    menu: Array<any>,
+    title?: string,
+    footer?: string
   ): Promise<Object> {
     return new Promise(async (resolve, reject) => {
       const result = await this.page.evaluate(
-        ({ to, title, description, buttonText, menu }) => {
-          return WAPI.sendListMenu(to, title, description, buttonText, menu);
+        ({ to, buttonText, description, menu, title, footer }) => {
+          // return WAPI.sendListMenu(to, title, description, buttonText, menu);
+          return WPP.chat.sendListMessage(to, {
+            buttonText: buttonText,
+            description: description,
+            sections: menu,
+            title: title,
+            footer: footer,
+          });
         },
-        { to, title, description, buttonText, menu }
+        { to, buttonText, description, menu, title, footer }
       );
       if (result['erro'] == true) {
         return reject(result);
@@ -391,7 +399,8 @@ export class SenderLayer extends ListenerLayer {
     to: string,
     title: string,
     buttons: { buttonText: { displayText: string } }[],
-    subtitle: string
+    subtitle: string,
+    footer?: string
   ): Promise<object> {
     return new Promise(async (resolve, reject) => {
       const typeFunction = 'sendButtons';
@@ -425,7 +434,14 @@ export class SenderLayer extends ListenerLayer {
           value: buttons,
           function: typeFunction,
           isUser: true
-        }
+        },
+        {
+          param: 'footer',
+          type: type,
+          value: footer,
+          function: typeFunction,
+          isUser: true
+        },
       ];
       const validating = checkValuesSender(check);
       if (typeof validating === 'object') {
@@ -433,10 +449,15 @@ export class SenderLayer extends ListenerLayer {
       }
 
       const result = await this.page.evaluate(
-        ({ to, title, buttons, subtitle }) => {
-          return WAPI.sendButtons(to, title, buttons, subtitle);
+        ({ to, title, buttons, subtitle, footer }) => {
+          return WPP.chat.sendTextMessage(to, subtitle, {
+            useTemplateButtons: true,
+            buttons: buttons,
+            title: title,
+            footer: footer,
+          });
         },
-        { to, title, buttons, subtitle }
+        { to, title, buttons, subtitle, footer }
       );
 
       if (result['erro'] == true) {
