@@ -122,7 +122,7 @@ export class Whatsapp extends ControlsLayer {
    * @returns boolean
    */
   public async logout() {
-    return await this.page.evaluate(() => WAPI.logout());
+    return await this.page.evaluate(() => WPP.conn.logout());
   }
 
   /**
