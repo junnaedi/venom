@@ -451,10 +451,10 @@ export class SenderLayer extends ListenerLayer {
       const result = await this.page.evaluate(
         ({ to, title, buttons, subtitle, footer }) => {
           return WPP.chat.sendTextMessage(to, subtitle, {
-            useTemplateButtons: true,
+            useTemplateButtons: false,
             buttons: buttons,
             title: title,
-            footer: footer,
+            footer: footer
           });
         },
         { to, title, buttons, subtitle, footer }
